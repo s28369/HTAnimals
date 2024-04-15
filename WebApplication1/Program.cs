@@ -1,12 +1,12 @@
-    using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-
+using WebApplication1;
+//initialize
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -14,9 +14,21 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+
+//example database
 var animals = new List<Animal>();
 var visits = new List<Visit>();
 
+animals.Add(new Animal(1, "greg", "dog", 10, "red"));
+animals.Add(new Animal(2, "bob", "cat", 11, "green"));
+animals.Add(new Animal(3, "nick", "parrot", 20, "orange"));
+animals.Add(new Animal(4, "demon", "lizzard", 21, "yellow"));
+visits.Add(new Visit(1, 1, new DateTime(2023,1,3), "glowa", 15));
+visits.Add(new Visit(2, 2, new DateTime(2023,1,3), "lapa", 16));
+visits.Add(new Visit(3, 3, new DateTime(2023,1,3), "spina", 17));
+visits.Add(new Visit(4, 4, new DateTime(2023,1,3), "brzuh", 18));
+
+//logika dzialania MinimalAPI
 app.MapGet("/animals", () => Results.Ok(animals));
 app.MapGet("/animals/{id:int}", (int id) => FindAnimalById(animals, id));
 app.MapPost("/animals", (Animal animal) => AddAnimal(animals, animal));
@@ -27,6 +39,7 @@ app.MapPost("/visits", (Visit visit) => AddVisit(visits, visit));
 
 app.Run();
 
+//dokladna logika
 IResult FindAnimalById(List<Animal> animals, int id) {
     var animal = animals.FirstOrDefault(a => a.Id == id);
     return animal is null ? Results.NotFound($"Animal with ID {id} not found.") : Results.Ok(animal);
@@ -66,29 +79,4 @@ IResult AddVisit(List<Visit> visits, Visit visit) {
 }
         
 
-public class Animal {
-    public Animal(int id, string name, string category, double weight, string furColor)
-    {
-        Id = id;
-        Name = name;
-        Category = category;
-        Weight = weight;
-        FurColor = furColor;
-        
-    }
 
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Category { get; set; }
-    public double Weight { get; set; }
-    public string FurColor { get; set; }
-}
-
-public class Visit {
-    public int Id { get; set; }
-    public int AnimalId { get; set; }
-    public DateTime VisitDate { get; set; }
-    public string Description { get; set; }
-    public decimal Price { get; set; }
-    public Visit() {}
-}
